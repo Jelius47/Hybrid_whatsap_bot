@@ -1,0 +1,41 @@
+
+
+services:
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp-flask-bot
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+    restart: always
+
+  # ngrok:
+  #   image: wernight/ngrok
+  #   container_name: ngrok
+  #   depends_on:
+  #     - flask-app
+  #   environment:
+  #     - NGROK_AUTHTOKEN=2hHYqLgFvbJdpprkg3aJJQSjuJz_6aRWWN79sFuBqdZrN3Z96 # Replace with your copied Auth Token
+  #     - NGROK_REGION=in  # Replace with your preferred region if needed
+  #   # command: http --domain=healthy-awfully-mako.ngrok-free.app.ngrok.io flask-app:5000
+  #   command: curl --domain=healthy-awfully-mako.ngrok-free.app.ngrok.io flask-app:5000
+
+  #   ports:
+  #     - "4040:4040"
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    # network_mode: host
+    
+    environment:
+      - NGROK_AUTHTOKEN=2hHYqLgFvbJdpprkg3aJJQSjuJz_6aRWWN79sFuBqdZrN3Z96
+    command: http --domain=healthy-awfully-mako.ngrok-free.app flask-app:8000
+    # ASPNETCORE_URLS: http://+:4040
+    stdin_open: true  # For interactive terminal (-it)
+    tty: true         # For terminal mode (-it)
+    
