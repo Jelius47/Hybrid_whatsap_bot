@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: whatsapp-flask-bot
+    container_name: whatsapp-flask-bot-takwimu
     ports:
       - "8000:8000"
     volumes:

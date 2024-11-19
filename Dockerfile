@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /code
 
 # Copy requirements.txt and install dependencies
-COPY . ./
+COPY ./ ./
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 # RUN apt-get update && apt-get install -y httpie

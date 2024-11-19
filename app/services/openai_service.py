@@ -1,91 +1,150 @@
-
-
-
-import os
 import logging
 import shelve
+import os
+import json
 import time
 from dotenv import load_dotenv
 import openai
-import json
-from .function_descriptions import ona_functions # Importing the JSON-like function definitions
+from .functions import *  # Import function implementations
+from .function_descriptions import eastc_functions
 
-# Load environment variables from .env file
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# Load environment variables and set up OpenAI client
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_ASSISTANT_ID = os.getenv("OPENAI_ASSISTANT_ID")
+if not OPENAI_API_KEY:
+    logging.error("Missing OpenAI API Key.")
+    raise ValueError("Set OPENAI_API_KEY in environment variables.")
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
+
+# # Constants
+THREAD_DB_FILE = "threads_db"
+VECTOR_STORE_META_FILE = "vector_store_meta.json"
+SYSTEM_PROMPT = """You are assisting EASTC customers. Provide responses based on EASTC information and payment processing requests.
+If you can't answer, advise contacting EASTC directly."""
+VECTOR_STORE_NAME = "EastcVectorStore"
+FILE_PATHS = ["../Hybrid_whatsap_bot/app/Bot_Data/EASTC.txt"]
+
+
+
 # Constants
-SHELVE_FILE = "threads_db"
-SYSTEM_PROMPT_= """
-You are a helpful assistant called Amani Mashsauri managing an event ticketing system the event name is CHEKA TU. Ensure responses are friendly, clear, and easy for users to understand.
-When calling functions, please use the information provided to generate human-readable responses for each function result.
-be playful learn to be funny and be creative maching the mood of the customer whhile maintaining customer language and emoji
-"""
-SYSTEM_PROMPT = """
-You are Ona, an AI-powered storytelling assistant. Your role is to guide users through interactive stories, answer questions about characters, and suggest stories based on their interests.
-Be engaging, friendly, and create a sense of wonder. If a user wants to start a new story or learn something, use your functions to provide the best experience.
-You should know when to end coversation with the user in a kindly manner.
-"""
+VECTOR_STORE_META_FILE = "vector_store_metadata.json"
 
-# Define the functions for Ona Stories assistant
-def what_is_ona_stories() -> str:
-    return (
-        "Ona Stories is a storytelling platform focused on creating immersive, engaging, and impactful stories "
-        "that connect people and foster understanding. We specialize in interactive stories that highlight cultural, "
-        "social, and personal narratives in a unique and memorable way."
-    )
+def load_metadata(file_path):
+    """Load metadata from a JSON file."""
+    if not os.path.exists(file_path):
+        return None
+    with open(file_path, "r") as f:
+        return json.load(f)
 
-def provide_contact_and_location() -> dict:
-    return {
-        "phone": "+1234567890",
-        "email": "contact@onastories.com",
-        "location": "123 Storyteller Lane, Fiction City, FC 45678"
-    }
+def save_metadata(file_path, data):
+    """Save metadata to a JSON file."""
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=4)
 
-def provide_sample_works() -> list:
-    return [
-        {"title": "Utanzania ni nini", "description": "An insightful exploration into Tanzanian identity and culture."},
-        {"title": "The Story of Dala Dala Documentation", "description": "A documentary uncovering the history and culture of Tanzania's iconic Dala Dala transportation."},
-        {"title": "Singeli Music Documentary", "description": "A vibrant exploration of Singeli music and its impact on Tanzanian youth culture."},
-        {"title": "More Works", "description": "For additional projects, please visit our website at www.onastories.com."}
-    ]
+def upload_file_with_vector_store(file_paths, vector_store_name="DefaultVectorStore"):
+    """
+    Upload files to OpenAI and associate them with a vector store, checking for existing metadata.
+
+    Args:
+        file_paths (list of str): Paths of files to upload.
+        vector_store_name (str): The name of the vector store.
+
+    Returns:
+        dict: Metadata about the vector store and uploaded files.
+    """
+    try:
+        # Load existing metadata
+        metadata = load_metadata(VECTOR_STORE_META_FILE)
+        if metadata:
+            logging.info(f"Loaded existing metadata: {metadata}")
+
+            # Check if the vector store and files match
+            if (
+                metadata.get("vector_store_name") == vector_store_name
+                and set(metadata.get("uploaded_files", [])) == set(file_paths)
+            ):
+                logging.info(f"Vector store '{vector_store_name}' and files already uploaded.")
+                return metadata
+
+        # No matching metadata; proceed with upload
+        logging.info(f"Creating vector store: {vector_store_name}")
+        vector_store = client.beta.vector_stores.create(name=vector_store_name)
+        logging.info(f"Vector store created with ID: {vector_store.id}")
+
+        # Prepare file streams
+        file_streams = [open(path, "rb") for path in file_paths]
+        logging.info(f"Uploading files to vector store '{vector_store_name}'...")
+
+        # Upload files and associate them with the vector store
+        file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
+            vector_store_id=vector_store.id,
+            files=file_streams
+        )
+
+        # Safely extract file counts if available
+        file_counts = {}
+        if hasattr(file_batch, 'file_counts'):
+            file_counts = {
+                "processed_files": getattr(file_batch.file_counts, 'processed', None),
+                "failed_files": getattr(file_batch.file_counts, 'failed', None),
+                "pending_files": getattr(file_batch.file_counts, 'pending', None),
+            }
+
+        # Close file streams
+        for stream in file_streams:
+            stream.close()
+
+        # Prepare and save metadata
+        metadata = {
+            "vector_store_name": vector_store_name,
+            "vector_store_id": vector_store.id,
+            "file_batch_status": file_batch.status,
+            "file_counts": file_counts,
+            "uploaded_files": file_paths,
+        }
+        save_metadata(VECTOR_STORE_META_FILE, metadata)
+
+        # Log the result
+        logging.info(f"File batch upload completed with status: {file_batch.status}")
+        logging.info(f"File counts: {file_counts}")
+
+        return metadata
+
+    except Exception as e:
+        logging.error(f"Error uploading files to vector store: {e}")
+        raise RuntimeError("Failed to upload files to vector store.")
+
+# Metadata File for Assistants
+ASSISTANT_META_FILE = "assistants_meta.json"
+
+def load_assistant_metadata():
+    """Load assistant metadata from a local file."""
+    if os.path.exists(ASSISTANT_META_FILE):
+        with open(ASSISTANT_META_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_assistant_metadata(data):
+    """Save assistant metadata to a local file."""
+    with open(ASSISTANT_META_FILE, "w") as f:
+        json.dump(data, f)
 
 
-# Thread management functions
-def check_if_thread_exists(wa_id):
-    with shelve.open(SHELVE_FILE) as threads_shelf:
-        return threads_shelf.get(wa_id, None)
+import time
 
-def store_thread(wa_id, thread_id):
-    with shelve.open(SHELVE_FILE, writeback=True) as threads_shelf:
-        threads_shelf[wa_id] = thread_id
-
-
-def handle_request(request_data):
-
-    # Assuming request_data is a JSON string containing a dictionary
-    data = json.loads(request_data)  # Deserialize JSON to a Python dictionary
-    
-    # Extracting list and dictionary parameters
-    project_list = data.get("projects", [])  # Default to empty list if not found
-    contact_info = data.get("contact", {})  # Default to empty dict if not found
-    if project_list:
-        return project_list
-    else:
-        return contact_info
-
-
-# Main assistant function to handle user input and function calling
-def run_assistant(thread_id, name, message):
+#  Main assistant function to handle user input and function calling
+def run_assistant(thread_id, name, message_body):
     try:
         logging.info(f"Running assistant for thread: {thread_id}")
         
         # Initialize conversation history with system instructions
         conversation_history = [
             {'role': 'system', 'content': f"You are having a conversation with the client named {name}. Instructions: {SYSTEM_PROMPT}"},
-            {'role': 'user', 'content': message}
+            {'role': 'user', 'content': message_body}
         ]
 
         # Continuously handle responses until no function call is pending
@@ -94,7 +153,7 @@ def run_assistant(thread_id, name, message):
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=conversation_history,
-                functions=ona_functions,
+                functions=eastc_functions,
                 function_call="auto"
             )
 
@@ -113,10 +172,11 @@ def run_assistant(thread_id, name, message):
 
                 # Map function names to actual implementations
                 available_functions = {
-                    "what_is_ona_stories": what_is_ona_stories,
-                    "provide_contact_and_location": provide_contact_and_location,
-                    "provide_sample_works": provide_sample_works
-                }
+                    #   ,"get_eastc_history": get_eastc_history
+                      "get_contact_info": get_contact_info,
+                      "process_payment": process_payment,
+                      "provide_payment_instructions": provide_payment_instructions,
+                        }
 
                 # Call the function and store result if function exists
                 if function_called in available_functions:
@@ -146,28 +206,152 @@ def run_assistant(thread_id, name, message):
         logging.error(f"Error running assistant: {str(e)}")
         return "Samahani, kuna tatizo. Tafadhali jaribu tena baadaye."
 
+'''
+Dealing with the retrieval assistant
+'''
 
-# Generate a response for the user's input
-def generate_response(message_body, wa_id, name):
-    # Check for an existing thread or create a new one
-    thread_id = check_if_thread_exists(wa_id)
-    if thread_id is None:
-        logging.info(f"Creating a new thread for {name} with wa_id {wa_id}")
-        thread = client.Chat.create()
-        store_thread(wa_id, thread["id"])
-        thread_id = thread["id"]
-    else:
-        logging.info(f"Retrieving existing thread for {name} with wa_id {wa_id}")
 
-    # Process the message and get the assistant's response
-    new_message = run_assistant(thread_id, name, message_body)
+def get_or_create_retrieval_assistant(vector_store_id):
+    """Retrieve or create a retrieval assistant."""
+    metadata = load_assistant_metadata()
+    if "retrieval_assistant_id" in metadata:
+        logging.info(f"Using existing Retrieval Assistant ID: {metadata['retrieval_assistant_id']}")
+        return metadata["retrieval_assistant_id"]
+
+    try:
+        # Create the retrieval assistant
+        assistant = client.beta.assistants.create(
+            name="RetrievalAssistant",
+            instructions=SYSTEM_PROMPT,
+            model="gpt-3.5-turbo",
+            tools=[{"type": "file_search"}],
+        )
+        updated_assistant = client.beta.assistants.update(
+            assistant_id=assistant.id,
+            tool_resources={"file_search": {"vector_store_ids": [vector_store_id]}},
+        )
+        logging.info(f"Retrieval assistant created successfully with ID: {updated_assistant.id}")
+
+        # Save the assistant ID
+        metadata["retrieval_assistant_id"] = updated_assistant.id
+        save_assistant_metadata(metadata)
+        return updated_assistant.id
+
+    except Exception as e:
+        logging.error(f"Failed to create retrieval assistant: {e}")
+        raise RuntimeError("Failed to create the retrieval assistant.")
+
+# Initialize Assistants
+def initialize_assistants():
+    """Initialize vector store and assistants."""
+    # Check if metadata for vector store exists and matches files
+    metadata = upload_file_with_vector_store(FILE_PATHS, VECTOR_STORE_NAME)
+    vector_store_id = metadata["vector_store_id"]
+
+    # Retrieve or create the retrieval assistant
+    retrieval_assistant_id = get_or_create_retrieval_assistant(vector_store_id)
+
+    logging.info(f"Retrieval Assistant ID: {retrieval_assistant_id}")
+    return retrieval_assistant_id
+
+
+
+#Initialize assistants
+retrieval_assistant_id = initialize_assistants()
+
+# Define routing keywords and determine assistant type
+function_call_keywords = {"payment",  "contact", "info"}
+
+def determine_assistant(message_body):
+    """Determines the appropriate assistant based on message content."""
+    if any(keyword in message_body.lower() for keyword in function_call_keywords):
+        return "function"
+    return "retrieval"
+
+# Thread management for user interactions
+def get_or_create_thread(wa_id):
+    with shelve.open(THREAD_DB_FILE, writeback=True) as threads_shelf:
+        thread_id = threads_shelf.get(wa_id)
+        if not thread_id:
+            try:
+                thread = client.beta.threads.create()
+                threads_shelf[wa_id] = thread.id
+                logging.info(f"New thread created for wa_id '{wa_id}' with thread ID: {thread.id}")
+                return thread.id
+            except Exception as e:
+                logging.error(f"Error creating new thread: {e}")
+                raise RuntimeError("Failed to create thread.")
+        return thread_id
+
+
+
+def run_retrieval_assistant(thread_id, name, message_body, assistant_id):
+    """Run retrieval assistant and get a response."""
+    try:
+        # Add the user message to the thread
+        user_message = client.beta.threads.messages.create(
+            thread_id=thread_id,
+            role="user",
+            content=f"{message_body},my name is {name}",
+        )
+
+        # Run the assistant
+        run = client.beta.threads.runs.create(
+            thread_id=thread_id,
+            assistant_id="asst_Mvq8PfboUCg0clWKdGq8L1XT",
+        )
+
+        # Wait for the run to complete
+        while run.status != "completed":
+            time.sleep(0.5)
+            run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+ # Get the assistant's response
+        messages = client.beta.threads.messages.list(thread_id=thread_id)
+        for msg in messages.data:
+            if msg.role == "assistant" and msg.content:
+                # Check if content is in a complex structure and extract text
+                if isinstance(msg.content, list):
+                    for content_block in msg.content:
+                        if hasattr(content_block, "text") and hasattr(content_block.text, "value"):
+                            logging.info(f"Assistant responded with: {content_block.text.value}")
+                            return content_block.text.value
+                elif isinstance(msg.content, str):
+                    logging.info(f"Assistant responded with: {msg.content}")
+                    return msg.content
+
+        return "Sorry, no valid response received from the assistant."
+
+    except Exception as e:
+        logging.error(f"Error running retrieval assistant: {e}")
+        return "Sorry, an error occurred. Please try again later."
     
-    return new_message
 
-# Example usage
-# wa_id = "255123456789"
-# name = "John"
-# message_body = "Can you check the availability of VIP tickets?"
-# response_message = generate_response(message_body, wa_id, name)
-# print(response_message)
+def get_or_create_thread(wa_id):
+    """Retrieve or create a thread for the user."""
+    with shelve.open(THREAD_DB_FILE, writeback=True) as threads_shelf:
+        thread_id = threads_shelf.get(wa_id)
+        if thread_id:
+            logging.info(f"Found existing thread ID for wa_id '{wa_id}': {thread_id}")
+            return thread_id
 
+        try:
+            thread = client.beta.threads.create()
+            threads_shelf[wa_id] = thread.id
+            logging.info(f"New thread created for wa_id '{wa_id}' with thread ID: {thread.id}")
+            return thread.id
+        except Exception as e:
+            logging.error(f"Error creating new thread: {e}")
+            raise RuntimeError("Failed to create thread.")
+# Generate response
+def generate_response(message_body, wa_id, name):
+    """Route the message to the appropriate assistant."""
+    thread_id = get_or_create_thread(wa_id)
+
+    # Determine assistant type based on the message content
+    assistant_type = determine_assistant(message_body)
+    if assistant_type == "function":
+        logging.info("Routing to function assistant.")
+        return run_assistant(thread_id, name, message_body)
+    else:
+        logging.info("Routing to retrieval assistant.")
+        return run_retrieval_assistant(thread_id, name, message_body, retrieval_assistant_id)
