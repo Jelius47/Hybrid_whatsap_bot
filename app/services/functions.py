@@ -1,35 +1,103 @@
-# Informational Functions (aligned with descriptions)
-# def get_eastc_history(start_date, end_date):
-#     """Retrieve EASTC historical information within a specified date range."""
-#     # Here, simulate retrieval with mock data or database query.
-#     return [
-#         {"title": "EASTC Founded", "description": f"EASTC was founded on {start_date}."},
-#         {"title": "Expansion Phase", "description": f"Major expansions occurred up to {end_date}."}
-#     ]
+import requests
+from flask import Flask, request, jsonify
+from app import create_app
+from flask import Blueprint, request, jsonify, current_app
 
-def get_contact_info(department):
-    """Retrieve contact information for a specified EASTC department."""
-    contacts = {
-        "admissions": {"title": "Admissions Office", "description": "Contact admissions at admissions@eastc.org"},
-        "finance": {"title": "Finance Department", "description": "Contact finance at finance@eastc.org"},
-    }
-    return contacts.get(department.lower(), {"title": "Department Not Found", "description": f"No contact info for {department}."})
+webhook_blueprint = Blueprint("webhook", __name__)
 
-# Payment Processing Functions (development category)
-def process_payment(amount, currency, method):
-    """Process a payment transaction based on provided details."""
-    # Simulate payment processing
-    return f"Payment of {amount} {currency} processed using {method}."
+REGISTRATION_URL = "https://9a83-197-250-226-222.ngrok-free.app/registration"
+# In-memory database for demonstration purposes
+app = create_app()
+users_db = {}
+bookings_db = []
 
-def check_payment_status(transaction_id):
-    """Check the status of a payment based on transaction ID."""
-    # Simulate checking payment status
-    return f"Payment status for transaction ID {transaction_id} is: completed."
 
-def provide_payment_instructions(method):
-    """Provide instructions for making a payment using a specified method."""
-    instructions = {
-        "credit card": "Use your credit card number and CVV to complete the payment.",
-        "bank transfer": "Transfer to our account at Bank XYZ, Account Number 123456789."
-    }
-    return instructions.get(method.lower(), "No instructions available for this payment method.")
+@webhook_blueprint.route("/register", methods=["POST"])
+
+def register_user():
+    data = request.json
+    phone_number = data.get('phone_number')
+    car_plate_no = data.get('car_plate_no')
+
+    if not phone_number or not car_plate_no:
+        return jsonify({"error": "Phone number and car plate number are required"}), 400
+
+    # Send data to the external registration endpoint
+    try:
+        response = requests.post(REGISTRATION_URL, json=data)
+        if response.status_code == 201:
+            user_id = len(users_db) + 1
+            users_db[user_id] = {
+                "phone_number": phone_number,
+                "car_plate_no": car_plate_no
+            }
+            return jsonify({"message": "User registered successfully", "user_id": user_id}), 201
+        else:
+            return jsonify({"error": "Failed to register user", "details": response.json()}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Could not connect to registration service", "details": str(e)}), 500
+
+# Payment options endpoint
+
+@app.route('/payment', methods=['POST'])
+@webhook_blueprint.route("/payment", methods=["POST"])
+
+def payment_options():
+    data = request.json
+    user_id = data.get('user_id')
+    payment_option = data.get('payment_option')
+
+    if not user_id or not payment_option:
+        return jsonify({"error": "User ID and payment option are required"}), 400
+
+    if payment_option not in ["cash", "electronic"]:
+        return jsonify({"error": "Invalid payment option"}), 400
+
+    bookings_db.append({
+        "user_id": user_id,
+        "payment_option": payment_option,
+        "status": "Pending"
+    })
+    return jsonify({"message": "Payment option selected successfully"}), 200
+
+
+# Nearby filling stations endpoint
+@webhook_blueprint.route("/filling-stations", methods=["POST"])
+
+def request_filling_station():
+    data = request.json
+    user_id = data.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+
+    # Mock data for nearby filling stations
+    filling_stations = [
+        {"name": "Station A", "location": "Kinondoni", "distance": "2.5 km"},
+        {"name": "Station B", "location": "Mikocheni", "distance": "3.0 km"},
+        {"name": "Station C", "location": "Kijitonyama", "distance": "4.2 km"}
+    ]
+    return jsonify({"message": "Nearby filling stations", "stations": filling_stations}), 200
+
+
+# Booking confirmation endpoint
+@webhook_blueprint.route("/confirmation-", methods=["POST"])
+
+def confirm_booking():
+    data = request.json
+    user_id = data.get('user_id')
+    confirmation = data.get('confirmation')
+
+    if not user_id or confirmation is None:
+        return jsonify({"error": "User ID and confirmation status are required"}), 400
+
+    for booking in bookings_db:
+        if booking['user_id'] == user_id:
+            if confirmation:
+                booking['status'] = "Confirmed"
+                return jsonify({"message": "Booking confirmed"}), 200
+            else:
+                booking['status'] = "Cancelled"
+                return jsonify({"message": "Booking cancelled"}), 200
+
+    return jsonify({"error": "Booking not found for the user"}), 404

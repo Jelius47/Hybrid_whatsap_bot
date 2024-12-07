@@ -77,20 +77,28 @@
 #     }
 # ]
 eastc_functions = [
-                        {
-                            "name": "get_contact_info",
-                            "description": "Provide contact information for EASTC.",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "department": {
-                                        "type": "string",
-                                        "description": "The specific department to get contact info for (e.g., 'admissions', 'finance')."
-                                    }
-                                },
-                                "required": ["department"]
+                                            {
+                            "type": "function",
+                            "function": {
+                                "name": "register_user",
+                                "description": "Registers a user by sending their phone number and car plate number to an external registration service.",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                        "phone_number": {
+                                            "type": "string",
+                                            "description": "The phone number of the user to be registered."
+                                        },
+                                        "car_plate_no": {
+                                            "type": "string",
+                                            "description": "The car plate number of the user's vehicle."
+                                        }
+                                    },
+                                    "required": ["phone_number", "car_plate_no"]
+                                }
                             }
-                        },
+                        }
+                        ,
                         {
                             "name": "process_payment",
                             "description": "Process a payment with specified details.",
