@@ -242,11 +242,12 @@ def run_assistant(thread_id, name, message_body):
 
                 # Map function names to actual implementations
                 available_functions = {
-                    #   ,"get_eastc_history": get_eastc_history
-                      "get_contact_info": get_contact_info,
-                      "process_payment": process_payment,
-                      "provide_payment_instructions": provide_payment_instructions,
+                            "register_user": register_user,
+                            "payment_options": payment_options,
+                            "request_filling_station": request_filling_station,
+                            "confirm_booking": confirm_booking
                         }
+
 
                 # Call the function and store result if function exists
                 if function_called in available_functions:

@@ -100,25 +100,66 @@ eastc_functions = [
                         }
                         ,
                         {
-                            "name": "process_payment",
-                            "description": "Process a payment with specified details.",
+                            "type": "function",
+                            "function": {
+                                "name": "confirm_booking",
+                                "description": "Allows a user to confirm or cancel their booking for a gas station.",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                        "user_id": {
+                                            "type": "integer",
+                                            "description": "The unique ID of the user confirming or canceling the booking."
+                                        },
+                                        "confirmation": {
+                                            "type": "boolean",
+                                            "description": "The user's confirmation status. Set to 'true' for confirmation or 'false' for cancellation."
+                                        }
+                                    },
+                                    "required": ["user_id", "confirmation"]
+                                }
+                            }
+                        }
+                        ,
+                        {
+                        "type": "function",
+                        "function": {
+                            "name": "request_filling_station",
+                            "description": "Provides a list of nearby gas filling stations based on the user's location.",
                             "parameters": {
                                 "type": "object",
                                 "properties": {
-                                    "amount": {
-                                        "type": "number",
-                                        "description": "The amount to be paid."
-                                    },
-                                    "currency": {
-                                        "type": "string",
-                                        "description": "The currency in which the payment is made (e.g., 'USD', 'EUR')."
-                                    },
-                                    "method": {
-                                        "type": "string",
-                                        "description": "The payment method to use, e.g., 'credit card', 'bank transfer'."
+                                    "user_id": {
+                                        "type": "integer",
+                                        "description": "The unique ID of the user requesting nearby filling stations."
                                     }
                                 },
-                                "required": ["amount", "currency", "method"]
+                                "required": ["user_id"]
                             }
                         }
+                    },
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": "payment_options",
+                            "description": "Allows a user to select a payment method (cash or electronic) for their gas station booking.",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "description": "The unique ID of the user selecting a payment option."
+                                    },
+                                    "payment_option": {
+                                        "type": "string",
+                                        "description": "The payment method chosen by the user. Must be either 'cash' or 'electronic'."
+                                    }
+                                },
+                                "required": ["user_id", "payment_option"]
+                            }
+                        }
+                    }
+
+
+
                     ]
