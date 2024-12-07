@@ -1,6 +1,6 @@
 {
-    "vector_store_name": "EastcVectorStore",
-    "vector_store_id": "vs_9dO6kp2VtG3R5wg8kIaHvLl4",
+    "vector_store_name": "smartGas_vector_store",
+    "vector_store_id": "vs_CMr78e1udyG4FQ1CKDIIkYgi",
     "file_batch_status": "completed",
     "file_counts": {
         "processed_files": null,
@@ -8,6 +8,6 @@
         "pending_files": null
     },
     "uploaded_files": [
-        "../Hybrid_whatsap_bot/app/Bot_Data/EASTC.txt"
+        "../Hybrid_whatsap_bot/app/Bot_Data/LPG.txt"
     ]
 }

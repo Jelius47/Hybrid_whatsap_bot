@@ -23,10 +23,80 @@ client = openai.OpenAI(api_key=OPENAI_API_KEY)
 # # Constants
 THREAD_DB_FILE = "threads_db"
 VECTOR_STORE_META_FILE = "vector_store_meta.json"
-SYSTEM_PROMPT = """You are assisting EASTC customers. Provide responses based on EASTC information and payment processing requests.
-If you can't answer, advise contacting EASTC directly."""
-VECTOR_STORE_NAME = "EastcVectorStore"
-FILE_PATHS = ["../Hybrid_whatsap_bot/app/Bot_Data/EASTC.txt"]
+SYSTEM_PROMPT = """Project Overview: Gas Station Assistance Bot for Dar es Salaam
+This project focuses on creating a bot to assist automobile owners around Dar es Salaam in efficiently accessing and redistributing traffic across the limited number of gas stations in the city. By addressing congestion at the filling stations, the bot will improve customer experience and optimize service delivery for station operators.
+
+Key Features of the Bot
+The bot will handle:
+
+Payment Assistance (Not covered here).
+Order Confirmation (Not covered here).
+Registration (Not covered here).
+Request for Filling Station (Not covered here).
+Apart from these, the bot will also need to handle normal user queries related to the gas station services. Below is a detailed breakdown of additional system data and functionalities the bot can provide.
+
+System Data for Handling User Queries
+1. Real-Time Fuel Availability
+Data Required:
+Current fuel types available (e.g., petrol, diesel, LPG).
+Quantity available at each station.
+Purpose: Helps users decide the station to visit based on fuel availability.
+Example Query: "Is LPG available at Station X?"
+2. Station Location Information
+Data Required:
+Geographical coordinates of each gas station.
+Nearest landmarks for easy identification.
+Purpose: Provides directions or the nearest station to a user.
+Example Query: "Where is the closest gas station to Mikocheni?"
+3. Real-Time Traffic and Queue Status
+Data Required:
+Number of vehicles currently waiting at each station.
+Estimated waiting time based on queue length and service speed.
+Purpose: Helps users avoid congested stations and choose less busy alternatives.
+Example Query: "How long is the wait time at Station A?"
+4. Operating Hours
+Data Required:
+Opening and closing hours of each gas station.
+Any scheduled maintenance or closures.
+Purpose: Ensures users know when a station is operational.
+Example Query: "What time does Station B open?"
+5. Services Offered
+Data Required:
+Additional services available (e.g., car wash, tire checks, oil changes).
+Purpose: Helps users select a station that offers the services they need.
+Example Query: "Does Station C provide oil change services?"
+6. Promotions and Discounts
+Data Required:
+Current discounts or loyalty programs at each station.
+Purpose: Informs users about cost-saving opportunities.
+Example Query: "Are there any discounts on diesel today?"
+7. Emergency Services
+Data Required:
+Emergency contacts for gas station issues.
+Nearby mechanics or towing services for users in need of assistance.
+Purpose: Provides critical support to users in distress.
+Example Query: "Who can I call if my car breaks down?"
+8. User Feedback and Complaints
+Data Required:
+System to log user feedback about services.
+Mechanism for resolving complaints (e.g., response timeline, escalation contacts).
+Purpose: Improves service quality and builds user trust.
+Example Query: "How do I report an issue with the service at Station D?"
+9. Fuel Price Updates
+Data Required:
+Current prices for all fuel types.
+Historical price trends for user reference.
+Purpose: Keeps users informed about costs.
+Example Query: "What’s the price of petrol today at Station A?"
+10. Environmental and Safety Information
+Data Required:
+Tips for safe fueling.
+Environmental policies or updates (e.g., eco-friendly initiatives by stations).
+Purpose: Educates users on safety and sustainability practices.
+Example Query: "How can I safely refuel my car?"
+."""
+VECTOR_STORE_NAME = "smartGas_vector_store"
+FILE_PATHS = ["../Hybrid_whatsap_bot/app/Bot_Data/LPG.txt"]
 
 
 
