@@ -31,6 +31,8 @@ This guide will walk you through the process of creating a WhatsApp bot using th
   - [Step 7: Add a Phone Number](#step-7-add-a-phone-number)
   - [Datalumina](#datalumina)
   - [Tutorials](#tutorials)
+- [Additionally a bit knowledge on git hub workflows](#knowledge-on-github-actions)
+  - [Scheduling Events](#how-toschedule-events)
 
 ## Get Started
 
@@ -188,7 +190,7 @@ If you want to use a number that is already being used in the WhatsApp customer 
 
 Once you have chosen your phone number, you have to add it to your WhatsApp Business Account. [See Add a Phone Number](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started/add-a-phone-number).
 
-When dealing with WhatsApp Business API and wanting to experiment without affecting your personal number, you have a few options:
+When dealing with WhatsApp Business API and wanting to experiment without #knowledge-on-github-actionsaffecting your personal number, you have a few options:
 
 1. Buy a New SIM Card
 2. Virtual Phone Numbers
@@ -214,6 +216,46 @@ twitter: jelius07
 For video tutorials, visit the YouTube channel: [youtube.com/@daveebbelaar](https://www.youtube.com/@daveebbelaar).
 
 My depest appreciation to @daveebbelaar for the amazing tutorial and for you all who have taken the time to read this and put in the work keep pushing forward.
+
+
+## Knowledge on github actions
+🔍 What is GitHub Actions?
+GitHub Actions allows you to automate software development workflows within your repositories. Workflows are custom automated processes that you set up to build, test, package, release, or deploy your code.
+
+🏗 Key Components
+Workflow: A YAML file that defines your automation process. It resides in the .github/workflows/ directory.
+
+Events: Triggers that start your workflows (e.g., push, pull_request, schedule).
+
+Jobs: A set of steps that run on the same runner.
+
+Steps: Individual tasks that run commands or actions.
+
+Actions: Reusable units of code that perform specific tasks (e.g., checkout code, set up environments).
+
+Runners: Servers that execute your workflow jobs. GitHub provides hosted runners or allows self-hosted ones.
+
+- 🏗 Github actions components:
+
+  - Actions: Reusable tasks that perfoms a specific job in a workflow
+
+  - Workflows: Automated processes defined in your repository that coordinate one or more jobs ,triggerd by events or schedule.
+  
+  - Jobs: Are grounp of steps that excecute on the same runner,typically running in parallel unlessconfigured otherwise.
+
+  - Steps: Individual task within a job that runs commands or actions sequentially
+
+  - Runs: Instances of workflows excecution triggered by events,representing the complete run-through-workflow
+
+  - Runners: These are the servers that hosts the environment where the jobs are excecuted,available as git-hub hosted or self hosted options.
+
+  - Market place: A place to find and share reusable actions,enhancing workflows with community-developed tools.
+
+  ### How toschedule events
+  
+
+
+
 
 Regards,    
 Jelius Heneriko.
