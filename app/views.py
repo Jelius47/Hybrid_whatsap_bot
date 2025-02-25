@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from .decorators.security import signature_required
 from .utils.whatsapp_utils import process_whatsapp_message, is_valid_whatsapp_message
 
+# from app.services.functions import register_user, payment_options, request_filling_station, confirm_booking
+
 # Load environment variables
 load_dotenv()
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
@@ -81,3 +83,37 @@ def webhook_get():
 @signature_required
 def webhook_post():
     return handle_message()
+
+# # Registration route
+# @webhook_blueprint.route("/register", methods=["POST"])
+# def register():
+#     """
+#     Handle user registration requests.
+#     This endpoint forwards the user-provided details to the registration function.
+#     """
+#     return register_user()
+
+# # Payment options route
+# @webhook_blueprint.route("/payment", methods=["POST"])
+# def payment():
+#     """
+#     Handle payment option selection.
+#     Users can choose between 'cash' or 'electronic' payment methods.
+#     """
+#     return payment_options()
+
+# # Nearby filling stations route
+# @webhook_blueprint.route("/filling-stations", methods=["POST"])
+# def filling_stations():
+#     """
+#     Provide a list of nearby filling stations to the user.
+#     """
+#     return request_filling_station()
+
+# # Booking confirmation route
+# @webhook_blueprint.route("/confirmation", methods=["POST"])
+# def confirmation():
+#     """
+#     Confirm or cancel a user's booking based on their input.
+#     """
+#     return confirm_booking()

@@ -1,18 +1,17 @@
 import requests
 from flask import Flask, request, jsonify
-from app import create_app
 from flask import Blueprint, request, jsonify, current_app
 
 webhook_blueprint = Blueprint("webhook", __name__)
 
 REGISTRATION_URL = "https://9a83-197-250-226-222.ngrok-free.app/registration"
 # In-memory database for demonstration purposes
-app = create_app()
+
 users_db = {}
 bookings_db = []
 
 
-@webhook_blueprint.route("/register", methods=["POST"])
+# @webhook_blueprint.route("/register", methods=["POST"])
 
 def register_user():
     data = request.json
@@ -39,8 +38,8 @@ def register_user():
 
 # Payment options endpoint
 
-@app.route('/payment', methods=['POST'])
-@webhook_blueprint.route("/payment", methods=["POST"])
+# @app.route('/payment', methods=['POST'])
+# @webhook_blueprint.route("/payment", methods=["POST"])
 
 def payment_options():
     data = request.json
@@ -62,7 +61,7 @@ def payment_options():
 
 
 # Nearby filling stations endpoint
-@webhook_blueprint.route("/filling-stations", methods=["POST"])
+# @webhook_blueprint.route("/filling-stations", methods=["POST"])
 
 def request_filling_station():
     data = request.json
@@ -81,7 +80,7 @@ def request_filling_station():
 
 
 # Booking confirmation endpoint
-@webhook_blueprint.route("/confirmation-", methods=["POST"])
+# @webhook_blueprint.route("/confirmation-", methods=["POST"])
 
 def confirm_booking():
     data = request.json
