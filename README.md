@@ -213,7 +213,7 @@ I hope this guide has been helpful. If you have any questions or need further as
 email: jeliusheneriko47@gmail.com
 twitter: jelius07
 ## Tutorials
-For video tutorials, visit the YouTube channel: [youtube.com/@daveebbelaar](https://www.youtube.com/@daveebbelaar).
+For video tutorials, visit the YouTube channel: [youtube.com/@daveebbelaar]([https://www.youtube.com/@daveebbelaar](https://www.youtube.com/watch?v=3YPeh-3AFmM&t=1522s)).
 
 My depest appreciation to @daveebbelaar for the amazing tutorial and for you all who have taken the time to read this and put in the work keep pushing forward.
 
