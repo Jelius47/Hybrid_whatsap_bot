@@ -77,89 +77,84 @@
 #     }
 # ]
 eastc_functions = [
-                                            {
-                            "type": "function",
-                            "function": {
-                                "name": "register_user",
-                                "description": "Registers a user by sending their phone number and car plate number to an external registration service.",
-                                "parameters": {
-                                    "type": "object",
-                                    "properties": {
-                                        "phone_number": {
-                                            "type": "string",
-                                            "description": "The phone number of the user to be registered."
-                                        },
-                                        "car_plate_no": {
-                                            "type": "string",
-                                            "description": "The car plate number of the user's vehicle."
-                                        }
-                                    },
-                                    "required": ["phone_number", "car_plate_no"]
-                                }
-                            }
-                        }
-                        ,
-                        {
-                            "type": "function",
-                            "function": {
-                                "name": "confirm_booking",
-                                "description": "Allows a user to confirm or cancel their booking for a gas station.",
-                                "parameters": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user_id": {
-                                            "type": "integer",
-                                            "description": "The unique ID of the user confirming or canceling the booking."
-                                        },
-                                        "confirmation": {
-                                            "type": "boolean",
-                                            "description": "The user's confirmation status. Set to 'true' for confirmation or 'false' for cancellation."
-                                        }
-                                    },
-                                    "required": ["user_id", "confirmation"]
-                                }
-                            }
-                        }
-                        ,
-                        {
-                        "type": "function",
-                        "function": {
-                            "name": "request_filling_station",
-                            "description": "Provides a list of nearby gas filling stations based on the user's location.",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "user_id": {
-                                        "type": "integer",
-                                        "description": "The unique ID of the user requesting nearby filling stations."
-                                    }
-                                },
-                                "required": ["user_id"]
-                            }
-                        }
+    {
+        "type": "function",
+        "function": {
+            "name": "register_user",
+            "description": "Registers a user by sending their phone number and car plate number to an external registration service.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "description": "The phone number of the user to be registered.",
                     },
-                    {
-                        "type": "function",
-                        "function": {
-                            "name": "payment_options",
-                            "description": "Allows a user to select a payment method (cash or electronic) for their gas station booking.",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "user_id": {
-                                        "type": "integer",
-                                        "description": "The unique ID of the user selecting a payment option."
-                                    },
-                                    "payment_option": {
-                                        "type": "string",
-                                        "description": "The payment method chosen by the user. Must be either 'cash' or 'electronic'."
-                                    }
-                                },
-                                "required": ["user_id", "payment_option"]
-                            }
-                        }
+                    "car_plate_no": {
+                        "type": "string",
+                        "description": "The car plate number of the user's vehicle.",
+                    },
+                },
+                "required": ["phone_number", "car_plate_no"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "confirm_booking",
+            "description": "Allows a user to confirm or cancel their booking for a gas station.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "The unique ID of the user confirming or canceling the booking.",
+                    },
+                    "confirmation": {
+                        "type": "boolean",
+                        "description": "The user's confirmation status. Set to 'true' for confirmation or 'false' for cancellation.",
+                    },
+                },
+                "required": ["user_id", "confirmation"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "request_filling_station",
+            "description": "Provides a list of nearby gas filling stations based on the user's location.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "The unique ID of the user requesting nearby filling stations.",
                     }
-
-
-
-                    ]
+                },
+                "required": ["user_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "payment_options",
+            "description": "Allows a user to select a payment method (cash or electronic) for their gas station booking.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "The unique ID of the user selecting a payment option.",
+                    },
+                    "payment_option": {
+                        "type": "string",
+                        "description": "The payment method chosen by the user. Must be either 'cash' or 'electronic'.",
+                    },
+                },
+                "required": ["user_id", "payment_option"],
+            },
+        },
+    },
+]

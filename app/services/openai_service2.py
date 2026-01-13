@@ -1,4 +1,3 @@
-
 # import logging
 # import shelve
 # import os
@@ -38,7 +37,6 @@
 #     return "function" if re.search(FUNCTION_CALL_KEYWORDS, message_body, re.IGNORECASE) else "retrieval"
 
 
-
 # # Thread Management
 # def get_or_create_thread(wa_id):
 #     """Retrieve or create a thread for a user."""
@@ -51,7 +49,7 @@
 #                 return thread_id
 #             except Exception as e:
 #                 logging.warning(f"Thread ID {thread_id} is invalid. Creating a new thread for WA ID: {wa_id}.")
-        
+
 #         # Create a new thread
 #         thread = client.beta.threads.create(messages=[{"role": "user", "content": "Start a new conversation"}])
 #         thread_id = thread.id
@@ -289,7 +287,7 @@
 #     """Handle function calls from the assistant."""
 #     function_name = function_call.name
 #     function_args = json.loads(function_call.arguments or "{}")
-    
+
 #     # Define function mapping
 #     function_map = {
 #         "get_contact_info": lambda args: f"Contact info for department {args['department']}.",
@@ -396,8 +394,6 @@
 #     return response
 
 
-
-
 # def run_function_assistant(thread_id, name, message):
 #     return run_assistant(thread_id, name, message, function_assistant_id)
 
@@ -407,7 +403,7 @@
 # # Generate response
 # def generate_response(message_body, wa_id, name):
 #     thread_id = get_or_create_thread(wa_id)
-    
+
 #     try:
 #         cancel_active_runs(thread_id)  # Cancel active runs if necessary
 #     except Exception as e:

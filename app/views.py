@@ -13,13 +13,14 @@ load_dotenv()
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 if VERIFY_TOKEN is None:
     raise ValueError("VERIFY_TOKEN environment variable is not set.")
-    
+
 # Logging for debugging purposes
 logging.basicConfig(level=logging.INFO)
 logging.info(f"VERIFY_TOKEN loaded: {VERIFY_TOKEN}")
 
 # Initialize Flask Blueprint for the webhook
 webhook_blueprint = Blueprint("webhook", __name__)
+
 
 def handle_message():
     """
@@ -30,13 +31,18 @@ def handle_message():
         response: JSON response and HTTP status code.
     """
     body = request.get_json()
-    
+
     if not body:
         logging.error("Empty or invalid JSON received.")
         return jsonify({"status": "error", "message": "Invalid JSON provided"}), 400
-    
+
     # Check if it's a WhatsApp status update (delivered, read, etc.)
-    if body.get("entry", [{}])[0].get("changes", [{}])[0].get("value", {}).get("statuses"):
+    if (
+        body.get("entry", [{}])[0]
+        .get("changes", [{}])[0]
+        .get("value", {})
+        .get("statuses")
+    ):
         logging.info("Received a WhatsApp status update.")
         return jsonify({"status": "ok"}), 200
 
@@ -47,6 +53,7 @@ def handle_message():
     else:
         logging.warning("Not a valid WhatsApp API event.")
         return jsonify({"status": "error", "message": "Not a WhatsApp API event"}), 404
+
 
 def verify():
     """
@@ -63,8 +70,8 @@ def verify():
 
     if mode and token:
         # Check if mode is subscribe and the token matches the configured VERIFY_TOKEN
-        
-        if mode == "subscribe" and token == "abc123": #VERIFY_TOKEN was hardcoded here
+
+        if mode == "subscribe" and token == "abc123":  # VERIFY_TOKEN was hardcoded here
             logging.info("WEBHOOK_VERIFIED")
             return challenge, 200
         else:
@@ -74,15 +81,18 @@ def verify():
         logging.error("Missing parameters for verification.")
         return jsonify({"status": "error", "message": "Missing parameters"}), 400
 
+
 # Define webhook routes
 @webhook_blueprint.route("/webhook", methods=["GET"])
 def webhook_get():
     return verify()
 
+
 @webhook_blueprint.route("/webhook", methods=["POST"])
 @signature_required
 def webhook_post():
     return handle_message()
+
 
 # # Registration route
 # @webhook_blueprint.route("/register", methods=["POST"])

@@ -14,7 +14,7 @@
 # # # Define constants
 # # MODEL_NAME = "gemini-1.5-flash"  # Adjust the model name as per Gemini's current offerings
 # # SHELVE_FILE = "threads_db"  # File for storing conversation threads
-# # SYSTEM_INSTRUCTION = os.getenv("SYSTEM_INSTRUCTION", 
+# # SYSTEM_INSTRUCTION = os.getenv("SYSTEM_INSTRUCTION",
 # #                                "Respond to customer queries in a helpful and friendly manner.")  # Default system instruction if not provided
 
 # # # Initialize the model with system instructions

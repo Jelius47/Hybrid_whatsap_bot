@@ -6,20 +6,21 @@ import logging
 
 # config test
 
+
 def load_configurations_(app):
     # Load environment variables
     load_dotenv()
 
     # Load each configuration and log or raise an error if any are missing
     required_configs = [
-        "ACCESS_TOKEN", 
-        "YOUR_PHONE_NUMBER", 
-        "APP_ID", 
-        "APP_SECRET", 
-        "RECIPIENT_WAID", 
-        "VERSION", 
-        "PHONE_NUMBER_ID", 
-        "VERIFY_TOKEN"
+        "ACCESS_TOKEN",
+        "YOUR_PHONE_NUMBER",
+        "APP_ID",
+        "APP_SECRET",
+        "RECIPIENT_WAID",
+        "VERSION",
+        "PHONE_NUMBER_ID",
+        "VERIFY_TOKEN",
     ]
 
     for config in required_configs:

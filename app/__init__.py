@@ -3,7 +3,6 @@ from app.config import load_configurations, configure_logging
 from .views import webhook_blueprint
 
 
-
 def create_app():
     app = Flask(__name__)
 
@@ -13,7 +12,7 @@ def create_app():
 
     # Import and register blueprints, if any
     app.register_blueprint(webhook_blueprint)
-        # Register the Blueprint
+    # Register the Blueprint
     # app.register_blueprint(webhook_blueprint, url_prefix="/webhook")
 
     return app
